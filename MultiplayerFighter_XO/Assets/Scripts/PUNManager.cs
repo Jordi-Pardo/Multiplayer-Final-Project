@@ -9,6 +9,11 @@ public class PUNManager : MonoBehaviourPunCallbacks
 
     private string gameVersion = "game1";
     private bool isConnecting;
+    private bool checkActivation = false;
+
+    public GameObject player1;
+    public GameObject player2;
+    public GameObject connecting;
 
     void Awake()
     {
@@ -24,10 +29,29 @@ public class PUNManager : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
+        if (checkActivation)
+        {
+            if (player1 == null || player2 == null)
+            {
+                checkActivation = false;
+                return;
+            }
+            if (!PhotonNetwork.InRoom)
+                return;
+
+            if(PhotonNetwork.CurrentRoom.PlayerCount>1)
+            {
+                player2.SetActive(true);
+            }
+            connecting.SetActive(false);
+            player1.SetActive(true);
+        }
+        
     }
 
     public void Connect()
     {
+        checkActivation=true;
         if (PhotonNetwork.IsConnected)
         {
             PhotonNetwork.JoinRandomRoom();
