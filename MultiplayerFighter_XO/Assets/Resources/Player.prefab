@@ -1319,7 +1319,6 @@ MonoBehaviour:
   castDamagePoint: {fileID: 4458398138107753924}
   hitRadius: 0.27
   canMove: 1
-  startBlocking: 0
 --- !u!114 &3313014584767216584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1339,6 +1338,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
+  - {fileID: 5028277150173514722}
   - {fileID: -4812566375968321188}
   - {fileID: -2592483451530892024}
   sceneViewId: 0

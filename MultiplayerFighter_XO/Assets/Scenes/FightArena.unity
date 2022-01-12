@@ -888,6 +888,9 @@ MonoBehaviour:
   - {fileID: 5028277150173514722, guid: 2fc323171659e08419cf8d1cd1889fb5, type: 3}
   - {fileID: 7736523333667735167, guid: 65c0b7358f3bc0140884d7b43e255132, type: 3}
   playersList: []
+  localPlayer: {fileID: 0}
+  otherPlayer: {fileID: 0}
+  playerNum: 0
 --- !u!4 &60508307
 Transform:
   m_ObjectHideFlags: 0
@@ -6155,9 +6158,7 @@ MonoBehaviour:
   health: 0
   castDamagePoint: {fileID: 0}
   hitRadius: 0
-  client: {fileID: 0}
   canMove: 1
-  startBlocking: 0
 --- !u!143 &378937806
 CharacterController:
   m_ObjectHideFlags: 0
@@ -29815,7 +29816,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1694719458
 MonoBehaviour:
   m_ObjectHideFlags: 0

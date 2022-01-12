@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class CharacterScript : MonoBehaviourPunCallbacks
+public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
 {
     public int ID;
     public static Action<CharacterScript> onReceiveDamage;
@@ -29,12 +29,8 @@ public class CharacterScript : MonoBehaviourPunCallbacks
     public Transform castDamagePoint;
     public float hitRadius;
     public bool canMove = true;
-    public bool startBlocking = false;
-    private object attackLock;
-    private object walkLock;
-    private object idleLock; 
-    private object blockLock;
-    private object knockBackLock;
+
+
     enum STATE
     {
         SEARCH_STATE,
@@ -62,18 +58,16 @@ public class CharacterScript : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
-        attackLock = new object();
-        walkLock = new object();
-        idleLock = new object();
-        blockLock = new object();
-        knockBackLock = new object();
     }
 
     // Update is called once per frame
     void Update()
     {
         if (!photonView.IsMine)
+        {
+            Debug.Log(health);
             return;
+        }
 
         ProcessInternalInput();
         ProcessExternalInput();
@@ -83,6 +77,18 @@ public class CharacterScript : MonoBehaviourPunCallbacks
 
 
 
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(health);
+        }
+        else
+        {
+            health = (int)stream.ReceiveNext();
+        }
     }
 
     void ProcessInternalInput()
@@ -129,54 +135,39 @@ public class CharacterScript : MonoBehaviourPunCallbacks
         else inputList.Add(INPUT_STATE.IN_WALK);
 
         //Send position
-        lock (attackLock)
+        if (toAttack)
         {
-            if (toAttack)
-            {
-                blocking = false;
-                toAttack = false;
-                Attack();
-            }
+            blocking = false;
+            toAttack = false;
+            Attack();
         }
 
-        lock (blockLock)
+        if (toBlock)
         {
-            if (toBlock)
-            {
-                toBlock = false;
-                blocking = true;
-            }
+            toBlock = false;
+            blocking = true;
         }
-        lock (walkLock)
+        if (toWalk)
         {
-            if (toWalk)
-            {
-                blocking = false;
-                toWalk = false;
-                toWalkVector = Vector3.Lerp(toWalkVector, lastVectorRecieved, Time.deltaTime * (lastVectorRecieved.magnitude/toWalkVector.magnitude)*5);
-                Walk(toWalkVector);
-                Debug.Log("To Walk");
-            }
+            blocking = false;
+            toWalk = false;
+            toWalkVector = Vector3.Lerp(toWalkVector, lastVectorRecieved, Time.deltaTime * (lastVectorRecieved.magnitude/toWalkVector.magnitude)*5);
+            Walk(toWalkVector);
+            Debug.Log("To Walk");
         }
-        lock (idleLock)
+        if (idle)
         {
-            if (idle)
-            {
-                blocking = false;
-                idle = false;
-                animator.SetInteger("DIR", 0);
-                Debug.Log("TO IDLE");
-            }
+            blocking = false;
+            idle = false;
+            animator.SetInteger("DIR", 0);
+            Debug.Log("TO IDLE");
         }
 
-        lock (knockBackLock)
+        if (toKnockBack)
         {
-            if (toKnockBack)
-            {
-                toKnockBack = false;
-                //StartCoroutine(PushedBack(this));
-                this.ReceiveDamage();
-            }
+            toKnockBack = false;
+            //StartCoroutine(PushedBack(this));
+            this.ReceiveDamage();
         }
 
         animator.SetBool("Blocking", blocking);
@@ -286,7 +277,6 @@ public class CharacterScript : MonoBehaviourPunCallbacks
     public void Attack()
     {
         attack = true;
-        Debug.LogWarning(System.DateTime.Now.Millisecond);
         //animator.SetTrigger("Punch");
         inputList.Add(INPUT_STATE.IN_ATTACK);
         animator.SetTrigger("Punch");
@@ -307,46 +297,15 @@ public class CharacterScript : MonoBehaviourPunCallbacks
         
     }
 
-    public void ToAttacK()
-    {
-        lock (attackLock)
-        {
-            toAttack = true;
-        }
-    }
+  
 
     public void ToWalk(Vector3 vector)
     {
-        lock (walkLock)
-        {
-            toWalk = true;
-            inputList.Add(INPUT_STATE.IN_WALK);
-            toWalkVector = lastVectorRecieved = vector;
-        }
+        toWalk = true;
+        inputList.Add(INPUT_STATE.IN_WALK);
+        toWalkVector = lastVectorRecieved = vector;
     }
-    public void ToBlock()
-    {
-        lock (blockLock)
-        {
-            toBlock = true;
-        }
-    }
-    public void ToIdle()
-    {
-        lock (idleLock)
-        {
-            idle = true;
-        }
-    }
-
-    public void ToKnockBack()
-    {
-        lock (knockBackLock)
-        {
-            toKnockBack = true;
-        }
-    }
-
+    
     public void ReceiveDamage()
     {
         int damage = 50;

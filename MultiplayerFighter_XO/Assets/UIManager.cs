@@ -30,6 +30,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (players.Count != 2)
+        {
+            players = FindObjectsOfType<CharacterScript>().ToList();
+            players = players.OrderByDescending(player => player.tag).ToList();
+            for (int i = 0; i < players.Count; i++)
+            {
+                healthBars[i].fillAmount = players[i].health / 100;
+            }
+        }
+    }
+
     private void OnEnable()
     {
         CharacterScript.onReceiveDamage += UpdateHealth;
