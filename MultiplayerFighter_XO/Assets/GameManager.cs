@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
 
     public int playerNum;
 
+    public UIManager uiManager;
+
     //private NewClient client;
 
 
@@ -98,30 +100,13 @@ public class GameManager : MonoBehaviour
         }
         if (!endCountDown)
         {
-            if (playersList[0].health > playersList[1].health)
+            if (localPlayer.health > otherPlayer.health)
             {
-                //if (client.clientID == playersList[0].ID)
-                //{
-                //    CharacterScript.onFinishGame?.Invoke(true);
-                //}
-                //else
-                //{
-
-                //    CharacterScript.onFinishGame?.Invoke(false);
-                //}
+                uiManager.ShowFinalMessage(true);
             }
             else
             {
-                //if (client.clientID == playersList[1].ID)
-                //{
-                //    CharacterScript.onFinishGame?.Invoke(true);
-                //}
-                //else
-                //{
-
-                //    CharacterScript.onFinishGame?.Invoke(false);
-                //}
-
+                uiManager.ShowFinalMessage(false);
             }
         }
 
