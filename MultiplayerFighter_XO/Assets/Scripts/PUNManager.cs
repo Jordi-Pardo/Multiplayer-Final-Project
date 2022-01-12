@@ -10,6 +10,8 @@ public class PUNManager : MonoBehaviourPunCallbacks
     private string gameVersion = "game1";
     private bool isConnecting;
     private bool checkActivation = false;
+    private System.DateTime exitTime=System.DateTime.Now;
+    private bool exit = false;
 
     public GameObject player1;
     public GameObject player2;
@@ -46,7 +48,10 @@ public class PUNManager : MonoBehaviourPunCallbacks
             connecting.SetActive(false);
             player1.SetActive(true);
         }
-        
+        if (exit && exitTime <= System.DateTime.Now)
+        {
+            ExitRoomAndGoToLobby();
+        }
     }
 
     public void Connect()
@@ -115,14 +120,31 @@ public class PUNManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log("MasterClient: one less player");
-            PhotonNetwork.LoadLevel(0);
-            PhotonNetwork.LeaveRoom();
-            Destroy(this.gameObject);
+            if (player1 == null && player2 == null)
+            {
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+                PhotonNetwork.CurrentRoom.IsVisible = false;
+                GameObject winImage = GameObject.FindGameObjectWithTag("Holder").GetComponent<GameObjectHolder>().holder;
+                winImage.SetActive(true);
+                exitTime = System.DateTime.Now.AddSeconds(3);
+                exit = true;
+            }
+            else
+            {
+                ExitRoomAndGoToLobby();
+            }
         }
         else
         {
             Debug.Log("One less player");
         }
+    }
+
+    public void ExitRoomAndGoToLobby()
+    {
+        PhotonNetwork.LoadLevel(0);
+        PhotonNetwork.LeaveRoom();
+        Destroy(this.gameObject);
     }
 
     public override void OnLeftRoom()
