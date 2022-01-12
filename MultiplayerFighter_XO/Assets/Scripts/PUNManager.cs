@@ -126,6 +126,7 @@ public class PUNManager : MonoBehaviourPunCallbacks
                 PhotonNetwork.CurrentRoom.IsVisible = false;
                 GameObject winImage = GameObject.FindGameObjectWithTag("Holder").GetComponent<GameObjectHolder>().holder;
                 winImage.SetActive(true);
+                GameObject.FindObjectOfType<GameManager>().StopCountDown(true);
                 exitTime = System.DateTime.Now.AddSeconds(3);
                 exit = true;
             }
