@@ -29,7 +29,14 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
     public Transform castDamagePoint;
     public float hitRadius;
     public bool canMove = true;
+    public GAMEFINALIZED gameResult=GAMEFINALIZED.Continuing;
 
+    public enum GAMEFINALIZED
+    {
+        Continuing,
+        Win,
+        Lose
+    }
 
     enum STATE
     {
@@ -63,9 +70,13 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
     // Update is called once per frame
     void Update()
     {
+        if (gameResult != GAMEFINALIZED.Continuing)
+        {
+            onFinishGame(gameResult==GAMEFINALIZED.Win ? true : false);
+        }
+
         if (!photonView.IsMine)
         {
-            Debug.Log(health);
             return;
         }
 
@@ -74,7 +85,6 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
 
         ProcessState();
         UpdateState();
-
 
 
     }
@@ -153,14 +163,12 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
             toWalk = false;
             toWalkVector = Vector3.Lerp(toWalkVector, lastVectorRecieved, Time.deltaTime * (lastVectorRecieved.magnitude/toWalkVector.magnitude)*5);
             Walk(toWalkVector);
-            Debug.Log("To Walk");
         }
         if (idle)
         {
             blocking = false;
             idle = false;
             animator.SetInteger("DIR", 0);
-            Debug.Log("TO IDLE");
         }
 
         if (toKnockBack)
@@ -318,18 +326,17 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
         if(health <= 0)
         {
             health = 0;
-            Debug.Log("Died");
             animator.SetTrigger("Die");
             animator.applyRootMotion = true;
 
             //Finish game
-            if (photonView.IsMine == true)
+            if (photonView.IsMine)
             {
-                onFinishGame?.Invoke(false);
+                gameResult = GAMEFINALIZED.Lose;
             }
             else
             {
-                onFinishGame?.Invoke(true);
+                gameResult = GAMEFINALIZED.Win;
             }
 
 
@@ -350,7 +357,6 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
                 //if (client.clientID == ID)
                 //{
                     character.ReceiveDamage();
-                    Debug.Log("Hitted");
                     //StartCoroutine(PushedBack(character));
                     //client.SendInputMessageToServer(MessageClass.INPUT.KnockBack);
                 //}

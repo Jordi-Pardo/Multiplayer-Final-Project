@@ -1319,6 +1319,7 @@ MonoBehaviour:
   castDamagePoint: {fileID: 4458398138107753924}
   hitRadius: 0.27
   canMove: 1
+  gameResult: 0
 --- !u!114 &3313014584767216584
 MonoBehaviour:
   m_ObjectHideFlags: 0
