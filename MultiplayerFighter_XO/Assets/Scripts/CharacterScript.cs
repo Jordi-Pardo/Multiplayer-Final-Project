@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class CharacterScript : MonoBehaviour
+public class CharacterScript : MonoBehaviourPunCallbacks
 {
     public int ID;
     public static Action<CharacterScript> onReceiveDamage;
@@ -27,7 +28,6 @@ public class CharacterScript : MonoBehaviour
     [Header("Attack Info")]
     public Transform castDamagePoint;
     public float hitRadius;
-    public NewClient client;
     public bool canMove = true;
     public bool startBlocking = false;
     private object attackLock;
@@ -72,6 +72,8 @@ public class CharacterScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!photonView.IsMine)
+            return;
 
         ProcessInternalInput();
         ProcessExternalInput();
@@ -79,8 +81,7 @@ public class CharacterScript : MonoBehaviour
         ProcessState();
         UpdateState();
 
-        Debug.Log(currentState.ToString());
-        Debug.Log(beingHit.ToString());
+
 
     }
 
@@ -116,33 +117,17 @@ public class CharacterScript : MonoBehaviour
         //}
         if (Input.GetKeyDown(KeyCode.Y))
         {
-            if (client.clientID == ID)
-            {
-                Attack();
-                client.SendInputMessageToServer(MessageClass.INPUT.Attack);
-            }
+            Attack();
         }
-        if (client.clientID == ID)
-        {
-            bool nowBlocking = blocking;
-            blocking = Input.GetKey(KeyCode.B);
-            if (nowBlocking != blocking)
-            {
-                if(blocking)
-                    client.SendInputMessageToServer(MessageClass.INPUT.Block);
-                else
-                    client.SendInputMessageToServer(MessageClass.INPUT.Idle);
-            }
-        }
+
+        blocking = Input.GetKey(KeyCode.B);
+        
         //animator.SetBool("Blocking", blocking);
-        if (client.clientID == ID)
-        {
-            //Local
-            dir = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, 0f);
-            dir = dir.normalized;
-            if (dir == Vector3.zero) inputList.Add(INPUT_STATE.IN_IDLE);
-            else inputList.Add(INPUT_STATE.IN_WALK);
-        }
+        dir = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, 0f);
+        dir = dir.normalized;
+        if (dir == Vector3.zero) inputList.Add(INPUT_STATE.IN_IDLE);
+        else inputList.Add(INPUT_STATE.IN_WALK);
+
         //Send position
         lock (attackLock)
         {
@@ -200,27 +185,9 @@ public class CharacterScript : MonoBehaviour
 
     void ProcessExternalInput()
     {
-        if (Input.GetKeyDown(KeyCode.Y)/* || attack*/)
-        {
-            //inputList.Add(INPUT_STATE.IN_HIT);
-            //beingHit = true;
-            //if (!attack)
-            //{
-            //    client.SendInputMessageToServer(MessageClass.INPUT.Attack);
-            //}
-            //attack = false;
-            //client.SendInputMessageToServer(MessageClass.INPUT.Attack);
-        }
-        //else if (attack)
-        //{
-        //    inputList.Add(INPUT_STATE.IN_HIT);
-        //    beingHit = true;
-        //    attack = false;
-        //    Debug.Log("ATACK YES!!!!!!!!!!!!!!!!!!");
-        //}
+        
         if (beingHit && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f)
         {
-            //inputList.Add(INPUT_STATE.IN_IDLE);
             beingHit = false;
         }
         if(attack &&animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9)
@@ -256,7 +223,6 @@ public class CharacterScript : MonoBehaviour
                     {
                         case INPUT_STATE.IN_IDLE:
                             currentState = STATE.IDLE;
-                            client.SendInputMessageToServer(MessageClass.INPUT.Idle);
                             break;
                         case INPUT_STATE.IN_HIT:
                             currentState = STATE.HIT;
@@ -271,7 +237,6 @@ public class CharacterScript : MonoBehaviour
                     {
                         case INPUT_STATE.IN_IDLE:
                             currentState = STATE.IDLE;
-                            client.SendInputMessageToServer(MessageClass.INPUT.Idle);
                             break;
                     }
                     break;
@@ -284,7 +249,6 @@ public class CharacterScript : MonoBehaviour
                                 return;
                             }
                             currentState = STATE.IDLE;
-                            client.SendInputMessageToServer(MessageClass.INPUT.Idle);
                             break;
                     }
                     break;
@@ -305,13 +269,8 @@ public class CharacterScript : MonoBehaviour
                 //animator.SetBool("D", false);
                 break;
             case STATE.WALK:
-                if (client.clientID == ID)
-                {
-                    Vector3 desiredPos = transform.position + (dir.normalized * speed * Time.deltaTime);
-                    Walk(desiredPos);
-                    client.SendInputMessageToServer(MessageClass.INPUT.Move, true, desiredPos.x, desiredPos.y, desiredPos.z);
-                    
-                }
+                Vector3 desiredPos = transform.position + (dir.normalized * speed * Time.deltaTime);
+                Walk(desiredPos);                    
 
                 break;
             case STATE.HIT:
@@ -345,14 +304,7 @@ public class CharacterScript : MonoBehaviour
 
         }
         controller.transform.position = desiredPos;
-        //if(input == MessageClass.INPUT.A)
-        //{
-        //    dir = new Vector3(-1, 0, 0);
-        //}
-        //else if (input == MessageClass.INPUT.D)
-        //{
-        //    dir = new Vector3(1, 0, 0);
-        //}
+        
     }
 
     public void ToAttacK()
@@ -412,7 +364,7 @@ public class CharacterScript : MonoBehaviour
             animator.applyRootMotion = true;
 
             //Finish game
-            if (ID == client.clientID)
+            if (photonView.IsMine == true)
             {
                 onFinishGame?.Invoke(false);
             }

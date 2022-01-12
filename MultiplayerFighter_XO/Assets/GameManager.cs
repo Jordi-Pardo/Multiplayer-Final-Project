@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,7 +14,13 @@ public class GameManager : MonoBehaviour
 
     public List<CharacterScript> playersList;
 
-    private NewClient client;
+    public CharacterScript localPlayer;
+
+    public CharacterScript otherPlayer;
+
+    public int playerNum;
+
+    //private NewClient client;
 
 
     private void OnEnable()
@@ -22,45 +29,60 @@ public class GameManager : MonoBehaviour
     }
     private void OnDisable()
     {
-        
+
         CharacterScript.onFinishGame -= StopCountDown;
     }
 
-    private void Start()
+    public void Start()
     {
-       
+        playerNum = PhotonNetwork.LocalPlayer.ActorNumber;
+
+        //client = FindObjectOfType<NewClient>();
+        //if (client == null)
+        //    return;
+
+        //if (client.characterScripts.Count > 0)
+        //    return;
+        //SpawnPlayer();
+        PhotonNetwork.Instantiate(prefabs[playerNum == 1?0:1].name, playerNum==1?new Vector3(7, 0, -19) : new Vector3(17, 0, -19), Quaternion.identity);
+        
         StartCoroutine(TimeDown());
-        client = FindObjectOfType<NewClient>();
-        if (client == null)
-            return;
-
-        if (client.characterScripts.Count > 0)
-            return;
-        for (int i = 0; i < client.positionsDic.Count; i++)
-        {
-            SpawnPlayer(i,client.positionsDic[i]);
-
-        }
     }
 
     private void Update()
     {
+        if (localPlayer == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag(playerNum == 1 ? "Player": "Player2") ;
+            if (player != null)
+            {
+                localPlayer = player.GetComponent<CharacterScript>();
+            }
+        }
+
+        if (otherPlayer == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag(playerNum == 1 ? "Player2" :"Player");
+            if (player != null)
+            {
+                otherPlayer = player.GetComponent<CharacterScript>();
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             onPauseGame?.Invoke();
         }
-        if (playersList.Count <= 0)
+        if (localPlayer == null || otherPlayer == null)
             return;
 
-        if(playersList[0].transform.position.x > playersList[1].transform.position.x)
+        if (localPlayer.transform.position.x > otherPlayer.transform.position.x)
         {
-            playersList[0].transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
-            playersList[1].transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+            localPlayer.transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
         }
         else
         {
-            playersList[0].transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
-            playersList[1].transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
+            localPlayer.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
         }
 
     }
@@ -78,31 +100,31 @@ public class GameManager : MonoBehaviour
         {
             if (playersList[0].health > playersList[1].health)
             {
-                if (client.clientID == playersList[0].ID)
-                {
-                    CharacterScript.onFinishGame?.Invoke(true);
-                }
-                else
-                {
+                //if (client.clientID == playersList[0].ID)
+                //{
+                //    CharacterScript.onFinishGame?.Invoke(true);
+                //}
+                //else
+                //{
 
-                    CharacterScript.onFinishGame?.Invoke(false);
-                }
+                //    CharacterScript.onFinishGame?.Invoke(false);
+                //}
             }
             else
             {
-                if (client.clientID == playersList[1].ID)
-                {
-                    CharacterScript.onFinishGame?.Invoke(true);
-                }
-                else
-                {
+                //if (client.clientID == playersList[1].ID)
+                //{
+                //    CharacterScript.onFinishGame?.Invoke(true);
+                //}
+                //else
+                //{
 
-                    CharacterScript.onFinishGame?.Invoke(false);
-                }
+                //    CharacterScript.onFinishGame?.Invoke(false);
+                //}
 
             }
         }
-        
+
     }
 
     public void StopCountDown(bool boolean)
@@ -113,12 +135,11 @@ public class GameManager : MonoBehaviour
 
     public void SpawnPlayer(int i, Vector3 pos)
     {
-
         CharacterScript character = Instantiate(prefabs[i], pos, Quaternion.identity);
         playersList.Add(character);
-        character.client = client;
-        character.ID = i;
-        client.characterScripts.Add(character);
+        //character.client = client;
+        //character.ID = i;
+        //client.characterScripts.Add(character);
 
     }
 
