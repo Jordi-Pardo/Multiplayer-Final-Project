@@ -9,10 +9,20 @@ public class PUNManager : MonoBehaviourPunCallbacks
 
     private string gameVersion = "game1";
     private bool isConnecting;
+    private bool notDuplicated = true;
 
     void Awake()
     {
-        PhotonNetwork.AutomaticallySyncScene = true;
+        if (FindObjectsOfType<PUNManager>().Length > 1)
+        {
+            Destroy(this.gameObject);
+            notDuplicated = false;
+        }
+        else
+        {
+            DontDestroyOnLoad(this);
+            PhotonNetwork.AutomaticallySyncScene = true;
+        }
     }
 
     // Start is called before the first frame update
@@ -24,7 +34,6 @@ public class PUNManager : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        
     }
 
     public void Connect()
@@ -77,21 +86,22 @@ public class PUNManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log("MasterClient: new player");
+            PhotonNetwork.LoadLevel(1);
         }
         else
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                Debug.Log("New player");
-            }
+            Debug.Log("New player");
         }
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
+        Debug.Log(PhotonNetwork.CurrentRoom.PlayerCount);
+        //PhotonNetwork.SetMasterClient(photonView)
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log("MasterClient: one less player");
+            PhotonNetwork.LoadLevel(0);
         }
         else
         {
@@ -102,11 +112,6 @@ public class PUNManager : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         Debug.LogWarning("Room left");
-    }
-
-    public void OnDestroy()
-    {
-        PhotonNetwork.LeaveRoom();
     }
 
 }
