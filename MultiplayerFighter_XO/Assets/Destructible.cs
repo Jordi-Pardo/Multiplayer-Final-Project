@@ -11,6 +11,7 @@ public interface IDamageable
 [RequireComponent(typeof(PhotonView))]
 public class Destructible : MonoBehaviour,IDamageable
 {
+    public float dissolveSpeed = 1;
     public void RecieveDamage()
     {
         PhotonView photonView = PhotonView.Get(this);
@@ -20,6 +21,26 @@ public class Destructible : MonoBehaviour,IDamageable
     [PunRPC]
     public void DestroyObject()
     {
-        Destroy(gameObject,0.2f);
+        StartCoroutine(Dissolve());
     }
+
+    public IEnumerator Dissolve()
+    {
+        float value = 0;
+
+        Material material = GetComponent<MeshRenderer>().material;
+
+        while (value < 1)
+        {
+            value = Mathf.MoveTowards(value, 1, Time.deltaTime * dissolveSpeed);
+            material.SetFloat("_Float", value);
+            yield return null;
+        }
+
+        Destroy(gameObject);
+
+
+    }
+
+        
 }

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: crystal_17_2
+  m_Name: crystal_dissolve_loop
   m_Shader: {fileID: -6465566751694194690, guid: 2c190818a51503a4593b6811d6db3ec2, type: 3}
   m_ShaderKeywords: _ALPHATEST_ON _ALPHATOMASK_ON _DISABLE_SSR_TRANSPARENT _DOUBLESIDED_ON
   m_LightmapFlags: 1
@@ -420,7 +420,7 @@ Material:
     - _EnableFogOnTransparent: 1
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 1
-    - _Float: 0.5
+    - _Float: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
