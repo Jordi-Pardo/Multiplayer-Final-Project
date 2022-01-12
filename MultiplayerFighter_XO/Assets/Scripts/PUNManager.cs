@@ -9,26 +9,16 @@ public class PUNManager : MonoBehaviourPunCallbacks
 
     private string gameVersion = "game1";
     private bool isConnecting;
-    private bool notDuplicated = true;
 
     void Awake()
     {
-        if (FindObjectsOfType<PUNManager>().Length > 1)
-        {
-            Destroy(this.gameObject);
-            notDuplicated = false;
-        }
-        else
-        {
             DontDestroyOnLoad(this);
             PhotonNetwork.AutomaticallySyncScene = true;
-        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        Connect();
     }
 
     // Update is called once per frame
@@ -102,6 +92,8 @@ public class PUNManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("MasterClient: one less player");
             PhotonNetwork.LoadLevel(0);
+            PhotonNetwork.LeaveRoom();
+            Destroy(this.gameObject);
         }
         else
         {
