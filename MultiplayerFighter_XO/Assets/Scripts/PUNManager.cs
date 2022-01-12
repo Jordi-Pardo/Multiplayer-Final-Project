@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class PUNManager : MonoBehaviourPunCallbacks
 {
 
-    string gameVersion = "game1";
+    private string gameVersion = "game1";
+    private bool isConnecting;
 
     void Awake()
     {
@@ -34,7 +36,7 @@ public class PUNManager : MonoBehaviourPunCallbacks
         }
         else
         {
-            PhotonNetwork.ConnectUsingSettings();
+            isConnecting = PhotonNetwork.ConnectUsingSettings();
             PhotonNetwork.GameVersion = gameVersion;
             Debug.Log("Not Connected");
         }
@@ -42,13 +44,18 @@ public class PUNManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinRandomRoom();
-        Debug.Log("ConnectedToMaster");
+        if (isConnecting)
+        {
+            PhotonNetwork.JoinRandomRoom();
+            Debug.Log("ConnectedToMaster");
+        }
+        isConnecting = false;
     }
 
 
     public override void OnDisconnected(Photon.Realtime.DisconnectCause cause)
     {
+        isConnecting = false;
         Debug.LogWarning(cause);
     }
 
@@ -65,12 +72,39 @@ public class PUNManager : MonoBehaviourPunCallbacks
         Debug.Log("Entered a room");
     }
 
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("MasterClient: new player");
+        }
+        else
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                Debug.Log("New player");
+            }
+        }
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("MasterClient: one less player");
+        }
+        else
+        {
+            Debug.Log("One less player");
+        }
+    }
+
     public override void OnLeftRoom()
     {
         Debug.LogWarning("Room left");
     }
 
-    private void OnDestroy()
+    public void OnDestroy()
     {
         PhotonNetwork.LeaveRoom();
     }
