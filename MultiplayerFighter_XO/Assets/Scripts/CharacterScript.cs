@@ -31,6 +31,8 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
     public bool canMove = true;
     public GAMEFINALIZED gameResult=GAMEFINALIZED.Continuing;
 
+    public ParticleSystem hitParticle;
+
     public enum GAMEFINALIZED
     {
         Continuing,
@@ -316,7 +318,7 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
     
     public void ReceiveDamage()
     {
-        int damage = 50;
+        int damage = 25;
         if (blocking)
         {
             animator.SetTrigger("Blocked");
@@ -352,13 +354,14 @@ public class CharacterScript : MonoBehaviourPunCallbacks, IPunObservable
 
         foreach (Collider c in colliders)
         {
-            if(c.gameObject.TryGetComponent(out CharacterScript character))
+            if (c.gameObject.TryGetComponent(out CharacterScript character))
             {
                 //if (client.clientID == ID)
                 //{
-                    character.ReceiveDamage();
-                    //StartCoroutine(PushedBack(character));
-                    //client.SendInputMessageToServer(MessageClass.INPUT.KnockBack);
+                character.ReceiveDamage();
+                hitParticle.Play();
+                //StartCoroutine(PushedBack(character));
+                //client.SendInputMessageToServer(MessageClass.INPUT.KnockBack);
                 //}
             }
 

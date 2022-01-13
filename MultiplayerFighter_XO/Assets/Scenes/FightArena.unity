@@ -4847,6 +4847,7 @@ MonoBehaviour:
   hitRadius: 0
   canMove: 1
   gameResult: 0
+  hitParticle: {fileID: 0}
 --- !u!143 &378937806
 CharacterController:
   m_ObjectHideFlags: 0
