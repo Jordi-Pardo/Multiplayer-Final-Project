@@ -17,14 +17,14 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 0
   skyIntensityMode:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   exposure:
     m_OverrideState: 0
     m_Value: 0
   multiplier:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 1000
   upperHemisphereLuxValue:
     m_OverrideState: 0
     m_Value: 0.015657283
@@ -32,8 +32,8 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: {x: 0.02088746, y: 0.1197286, z: 0.5}
   desiredLuxValue:
-    m_OverrideState: 0
-    m_Value: 20000
+    m_OverrideState: 1
+    m_Value: 200000
   updateMode:
     m_OverrideState: 0
     m_Value: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
     m_Value: {fileID: 8900000, guid: 09999639e73bcd64abda22253af612d8, type: 3}
   distortionMode:
     m_OverrideState: 0
-    m_Value: 0
+    m_Value: 2
   flowmap:
     m_OverrideState: 0
     m_Value: {fileID: 0}
@@ -142,7 +142,7 @@ MonoBehaviour:
     m_Value: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.552
+    m_Value: 0.14
   scatter:
     m_OverrideState: 0
     m_Value: 0.7
@@ -182,3 +182,32 @@ MonoBehaviour:
   components:
   - {fileID: -6569388166922393830}
   - {fileID: -422557600824174942}
+  - {fileID: 5499508637851747871}
+--- !u!114 &5499508637851747871
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f034cba68ab55e046ae1445a42f18c0e, type: 3}
+  m_Name: IndirectLightingController
+  m_EditorClassIdentifier: 
+  active: 1
+  indirectDiffuseLightingMultiplier:
+    m_OverrideState: 1
+    m_Value: 0
+  indirectDiffuseLightingLayers:
+    m_OverrideState: 1
+    m_Value: 0
+  reflectionLightingMultiplier:
+    m_OverrideState: 1
+    m_Value: 0.5
+  reflectionLightingLayers:
+    m_OverrideState: 1
+    m_Value: 255
+  reflectionProbeIntensityMultiplier:
+    m_OverrideState: 1
+    m_Value: 0.1
